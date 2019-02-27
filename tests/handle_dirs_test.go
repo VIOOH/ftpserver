@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/fclairamb/ftpserver/server"
+	"github.com/VIOOH/sc-ftpserver/server"
 	"gopkg.in/dutchcoders/goftp.v1"
 )
 
@@ -34,6 +34,48 @@ func TestDirListing(t *testing.T) {
 	}
 
 	if lines, err := ftp.List("/"); err != nil {
+		t.Fatal("Couldn't list files:", err)
+	} else {
+		found := false
+		for _, line := range lines {
+			line = line[0 : len(line)-2]
+			if len(line) < 47 {
+				break
+			}
+			fileName := line[47:]
+			if fileName == "known" {
+				found = true
+			}
+		}
+		if !found {
+			t.Fatal("Couldn't find the dir")
+		}
+	}
+
+	if err := ftp.Mkd("/known/1"); err != nil {
+		t.Fatal("Couldn't create dir:", err)
+	}
+
+	if lines, err := ftp.List("known"); err != nil {
+		t.Fatal("Couldn't list files:", err)
+	} else {
+		found := false
+		for _, line := range lines {
+			line = line[0 : len(line)-2]
+			if len(line) < 47 {
+				break
+			}
+			fileName := line[47:]
+			if fileName == "1" {
+				found = true
+			}
+		}
+		if !found {
+			t.Fatal("Couldn't find the dir")
+		}
+	}
+
+	if lines, err := ftp.List(""); err != nil {
 		t.Fatal("Couldn't list files:", err)
 	} else {
 		found := false
